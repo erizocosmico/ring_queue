@@ -10,5 +10,11 @@ categories = ["data-structures"]
 documentation = "https://docs.rs/ring_queue"
 homepage = "https://github.com/erizocosmico/ring_queue"
 repository = "https://github.com/erizocosmico/ring_queue"
+license = "MIT"
+readme = "README.md"
+keywords = ["double-ended queue", "queue", "circular", "deque", "ring"]
+
+[badges]
+travis-ci = { repository = "erizocosmico/ring_queue" }
 
 [dependencies]

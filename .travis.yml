@@ -4,6 +4,10 @@ rust:
   - beta
   - stable
 cache: cargo
+matrix:
+  allow_failures:
+    - rust: nightly
+
 script:
   - cargo build --verbose
   - cargo doc --verbose
