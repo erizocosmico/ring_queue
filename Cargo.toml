@@ -1,0 +1,14 @@
+[package]
+name = "ring_queue"
+description = """
+A double-ended queue implemented using a vector that reuses space after
+elements are removed.
+"""
+version = "0.1.0"
+authors = ["Miguel Molina <miguel@erizocosmi.co>"]
+categories = ["data-structures"]
+documentation = "https://docs.rs/ring_queue"
+homepage = "https://github.com/erizocosmico/ring_queue"
+repository = "https://github.com/erizocosmico/ring_queue"
+
+[dependencies]

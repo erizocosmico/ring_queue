@@ -1,0 +1,21 @@
+language: rust
+rust:
+- nightly
+- beta
+- stable
+cache: cargo
+script:
+- cargo build --verbose
+- cargo doc --verbose
+- cargo test --verbose
+env:
+- RUST_BACKTRACE=1
+jobs:
+  include:
+  - stage: crates.io release
+    deploy:
+      provider: cargo
+      token: "${CARGO_TOKEN}"
+deploy:
+  token:
+    secure: va6sVXjeMxTJRq/E0FNEn198AxV3mn5eowmvYe0MZQnF/tFe0E7I+/PuDQ+mM/572vaX80wY9y87hdPPLfgrdfWCtEW1f5+DDmgrbGDAf6c9fsBBIu4cSZuImDdj9TGyEBT+CfHaVE+k5cptb4AzOCuvsyDbEJBGWuaKcemPe3AbDUE+z6SI40T+/TiKz3p/9BDJcBFBluI/NkFP2TylNIc+rrQUQEsFjBhUBq6/N+7D1I8ErVNKX50RUSD6bk9JN0c2xVWH1AY5KqUhSFoRXx0NSNji37obZKllog4XU4K7AnvDNpNrc5KbL+0P9o8O+pqzGbCAe9wMa1JADkf4KcMEW4F9c58kI1lURi5Kp0yjNrZK+69NTkCZ/RF1wBcIDaXTo/++z6hNURy3rUk3pVID2VNYhvFKr54gd7PqJ5qPBn0rBxQm3eYIRbtMgGj4/kGR/rb6rxWsLdUrWvJCvIemHMLHjibLQwPPsZpHfzeoSTl+Mjv7jDm4T0xHSAkHnJjD5lcaPBmlFU/SZnil6Dhh9YVJRyBNBXIYYbMP40NtFAVsVPDy9uj+IfmEtSGH8dsOI6XMHFj2JfuywNQzYeZfroUwvQpOtpLRC+R4Ee1t8FnTWiT1yaDfjio+xP/+f05ypoLYDcAJwwBo8lLjVK3jvTGBnGnQEmyEG4XGcRw=
