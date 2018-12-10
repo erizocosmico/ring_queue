@@ -3,7 +3,7 @@
 //!
 //! The API is heavily based on `collections.deque` from Python.
 //!
-//! You can create a ring using any of the available constructors or the [`ring!`] macro.
+//! You can create a ring using any of the available constructors or the `ring!` macro.
 //!
 //! ```rust
 //! # #[macro_use] extern crate ring_queue;
@@ -61,10 +61,10 @@
 //! assert_eq!(r.collect(), vec![2, 3, 4, 5, 1]);
 //! ```
 //!
-//! Ring implements [`collect`] to collect the elements in the ring as a vector
+//! Ring implements `collect` to collect the elements in the ring as a vector
 //! if the type of the elements implements the `Copy` trait.
-//! It also implements [`into_iter`] to generate an iterator. However,
-//! [`into_iter`] empties the ring.
+//! It also implements `into_iter` to generate an iterator. However,
+//! `into_iter` empties the ring.
 //!
 //! ```rust
 //! # #[macro_use] extern crate ring_queue;

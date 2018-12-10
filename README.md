@@ -1,4 +1,4 @@
-# ring_queue
+# ring_queue [![Build Status](https://travis-ci.org/erizocosmico/ring_queue.svg?branch=master)](https://travis-ci.org/erizocosmico/ring_queue)
 
 A double-ended queue implemented using a `Vec` that reuses space after
 elements are removed.
