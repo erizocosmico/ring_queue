@@ -1,4 +1,4 @@
-# ring_queue [![Build Status](https://travis-ci.org/erizocosmico/ring_queue.svg?branch=master)](https://travis-ci.org/erizocosmico/ring_queue)
+# ring_queue [![Build Status](https://travis-ci.org/erizocosmico/ring_queue.svg?branch=master)](https://travis-ci.org/erizocosmico/ring_queue) [![Documentation](https://docs.rs/ring_queue/badge.svg)](https://docs.rs/ring_queue) [![crates.io](https://img.shields.io/crates/v/ring_queue.svg)](https://crates.io/crates/ring_queue) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A double-ended queue implemented using a `Vec` that reuses space after
 elements are removed.
