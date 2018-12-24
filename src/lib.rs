@@ -55,10 +55,10 @@
 //! let mut r = ring![1, 2, 3, 4, 5];
 //!
 //! r.rotate(1);
-//! assert_eq!(r.collect(), vec![5, 1, 2, 3, 4]);
+//! assert_eq!(r.collect_vec(), vec![5, 1, 2, 3, 4]);
 //!
 //! r.rotate(-2);
-//! assert_eq!(r.collect(), vec![2, 3, 4, 5, 1]);
+//! assert_eq!(r.collect_vec(), vec![2, 3, 4, 5, 1]);
 //! ```
 //!
 //! Ring implements `collect` to collect the elements in the ring as a vector
@@ -70,7 +70,7 @@
 //! use ring_queue::Ring;
 //!
 //! let mut r = ring![1, 2, 3, 4];
-//! assert_eq!(r.collect(), vec![1, 2, 3, 4]);
+//! assert_eq!(r.collect_vec(), vec![1, 2, 3, 4]);
 //! ```
 //!
 //! It also implements `into_iter` to generate an iterator. However,
@@ -288,7 +288,7 @@ where
     ///
     /// let mut r = ring![1, 2, 3];
     /// r.push(4);
-    /// assert_eq!(r.collect(), vec![1, 2, 3, 4]);
+    /// assert_eq!(r.collect_vec(), vec![1, 2, 3, 4]);
     /// # }
     /// ```
     pub fn push(&mut self, value: T) {
@@ -307,7 +307,7 @@ where
     ///
     /// let mut r = ring![1, 2, 3];
     /// r.push_left(0);
-    /// assert_eq!(r.collect(), vec![0, 1, 2, 3]);
+    /// assert_eq!(r.collect_vec(), vec![0, 1, 2, 3]);
     /// # }
     /// ```
     pub fn push_left(&mut self, value: T) {
@@ -350,10 +350,10 @@ where
     /// let mut r = ring![1, 2, 3, 4, 5];
     ///
     /// r.rotate(1);
-    /// assert_eq!(r.collect(), vec![5, 1, 2, 3, 4]);
+    /// assert_eq!(r.collect_vec(), vec![5, 1, 2, 3, 4]);
     ///
     /// r.rotate(-2);
-    /// assert_eq!(r.collect(), vec![2, 3, 4, 5, 1]);
+    /// assert_eq!(r.collect_vec(), vec![2, 3, 4, 5, 1]);
     /// # }
     /// ```
     pub fn rotate(&mut self, n: isize) -> &mut Self {
@@ -466,7 +466,7 @@ where
     ///
     /// let mut r = ring![1, 2, 3];
     /// r.append(&mut ring![4, 5, 6]);
-    /// assert_eq!(r.collect(), vec![1, 2, 3, 4, 5, 6]);
+    /// assert_eq!(r.collect_vec(), vec![1, 2, 3, 4, 5, 6]);
     /// # }
     /// ```
     pub fn append(&mut self, other: &mut Ring<T>) {
@@ -490,7 +490,7 @@ where
     ///
     /// let mut r = ring![4, 5, 6];
     /// r.append_left(&mut ring![3, 2, 1]);
-    /// assert_eq!(r.collect(), vec![1, 2, 3, 4, 5, 6]);
+    /// assert_eq!(r.collect_vec(), vec![1, 2, 3, 4, 5, 6]);
     /// # }
     /// ```
     pub fn append_left(&mut self, other: &mut Ring<T>) {
@@ -510,7 +510,7 @@ where
     ///
     /// let mut r = ring![1, 2, 3];
     /// r.reverse();
-    /// assert_eq!(r.collect(), vec![3, 2, 1]);
+    /// assert_eq!(r.collect_vec(), vec![3, 2, 1]);
     /// # }
     /// ```
     pub fn reverse(&mut self) {
@@ -557,10 +557,10 @@ where
     /// use ring_queue::Ring;
     ///
     /// let r = ring![1, 2, 3];
-    /// assert_eq!(r.collect(), vec![1, 2, 3]);
+    /// assert_eq!(r.collect_vec(), vec![1, 2, 3]);
     /// # }
     /// ```
-    pub fn collect(&self) -> Vec<T>
+    pub fn collect_vec(&self) -> Vec<T>
     where
         T: Copy,
     {
@@ -769,10 +769,10 @@ mod tests {
         let mut r = ring![1, 2];
 
         r.push(3);
-        assert_eq!(r.collect(), vec![1, 2, 3]);
+        assert_eq!(r.collect_vec(), vec![1, 2, 3]);
 
         r.push_left(0);
-        assert_eq!(r.collect(), vec![0, 1, 2, 3]);
+        assert_eq!(r.collect_vec(), vec![0, 1, 2, 3]);
     }
 
     #[test]
@@ -807,13 +807,13 @@ mod tests {
     #[test]
     fn test_collect() {
         let r = ring![1, 2, 3];
-        assert_eq!(vec![1, 2, 3], r.collect());
+        assert_eq!(vec![1, 2, 3], r.collect_vec());
     }
 
     #[test]
     fn test_from_iter() {
         let r = Ring::from_iter(vec![1, 2, 3]);
-        assert_eq!(vec![1, 2, 3], r.collect());
+        assert_eq!(vec![1, 2, 3], r.collect_vec());
     }
 
     #[test]
@@ -830,13 +830,13 @@ mod tests {
     #[test]
     fn test_rotate() {
         let mut r1 = ring![1, 2, 3, 4];
-        assert_eq!(r1.rotate(1).collect(), vec![4, 1, 2, 3]);
+        assert_eq!(r1.rotate(1).collect_vec(), vec![4, 1, 2, 3]);
 
         let mut r2 = ring![1, 2, 3, 4];
-        assert_eq!(r2.rotate(0).collect(), vec![1, 2, 3, 4]);
+        assert_eq!(r2.rotate(0).collect_vec(), vec![1, 2, 3, 4]);
 
         let mut r3 = ring![1, 2, 3, 4];
-        assert_eq!(r3.rotate(-1).collect(), vec![2, 3, 4, 1]);
+        assert_eq!(r3.rotate(-1).collect_vec(), vec![2, 3, 4, 1]);
     }
 
     #[test]
@@ -845,7 +845,7 @@ mod tests {
 
         assert_eq!(r.pop(), Some(4));
         assert_eq!(r.pop_left(), Some(1));
-        assert_eq!(r.collect(), vec![2, 3]);
+        assert_eq!(r.collect_vec(), vec![2, 3]);
     }
 
     #[test]
@@ -887,24 +887,24 @@ mod tests {
         assert_eq!(r.items[1].val, Some(6));
         r.push_left(7);
 
-        assert_eq!(r.collect(), vec![7, 3, 4, 5, 1, 6]);
+        assert_eq!(r.collect_vec(), vec![7, 3, 4, 5, 1, 6]);
     }
 
     #[test]
     fn test_append() {
         let mut r = ring![1, 2, 3];
         r.append(&mut ring![4, 5, 6]);
-        assert_eq!(r.collect(), vec![1, 2, 3, 4, 5, 6]);
+        assert_eq!(r.collect_vec(), vec![1, 2, 3, 4, 5, 6]);
 
         r.append_left(&mut ring![7, 8, 9]);
-        assert_eq!(r.collect(), vec![9, 8, 7, 1, 2, 3, 4, 5, 6]);
+        assert_eq!(r.collect_vec(), vec![9, 8, 7, 1, 2, 3, 4, 5, 6]);
     }
 
     #[test]
     fn test_reverse() {
         let mut r = ring![1, 2, 3];
         r.reverse();
-        assert_eq!(r.collect(), vec![3, 2, 1]);
+        assert_eq!(r.collect_vec(), vec![3, 2, 1]);
     }
 
     #[test]

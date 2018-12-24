@@ -57,10 +57,10 @@ use ring_queue::Ring;
 let mut r = ring![1, 2, 3, 4, 5];
 
 r.rotate(1);
-assert_eq!(r.collect(), vec![5, 1, 2, 3, 4]);
+assert_eq!(r.collect_vec(), vec![5, 1, 2, 3, 4]);
 
 r.rotate(-2);
-assert_eq!(r.collect(), vec![2, 3, 4, 5, 1]);
+assert_eq!(r.collect_vec(), vec![2, 3, 4, 5, 1]);
 ```
 
 Ring implements `collect` to collect the elements in the ring as a vector
@@ -72,7 +72,7 @@ if the type of the elements implements the `Copy` trait.
 use ring_queue::Ring;
 
 let mut r = ring![1, 2, 3, 4];
-assert_eq!(r.collect(), vec![1, 2, 3, 4]);
+assert_eq!(r.collect_vec(), vec![1, 2, 3, 4]);
 ```
 
 It also implements `into_iter` to generate an iterator. However,
