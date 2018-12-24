@@ -759,6 +759,39 @@ impl<T: fmt::Debug + Copy> fmt::Debug for Ring<T> {
     }
 }
 
+impl<T: PartialEq> PartialEq for Ring<T> {
+    fn eq(&self, other: &Ring<T>) -> bool {
+        if self.len() != other.len() {
+            return false;
+        }
+
+        let cur = self.cur.unwrap();
+        let cur2 = other.cur.unwrap();
+        let mut next = cur;
+        let mut next2 = cur2;
+
+        loop {
+            let v = &self.items[next].val;
+            let v2 = &other.items[next2].val;
+            if v != v2 {
+                return false;
+            }
+
+            if next == cur && next2 == cur2 {
+                break;
+            } else if next == cur || next2 == cur2 {
+                return false;
+            }
+
+            next = self.items[next].next;
+            next2 = other.items[next2].next;
+        }
+        true
+    }
+}
+
+impl<T: Eq> Eq for Ring<T> {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -923,5 +956,18 @@ mod tests {
     fn test_macro_nocopy() {
         let r = ring![vec![1, 2, 3]];
         assert_eq!(r.is_empty(), false);
+    }
+
+    #[test]
+    fn test_eq() {
+        let r = ring![1, 2, 3];
+
+        assert_eq!(r == ring![1, 2], false);
+        assert_eq!(r == ring![1, 2, 3], true);
+        assert_eq!(r == ring![], false);
+
+        assert_eq!(r != ring![1, 2], true);
+        assert_eq!(r != ring![1, 2, 3], false);
+        assert_eq!(r != ring![], true);
     }
 }
