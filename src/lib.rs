@@ -62,9 +62,7 @@
 //! ```
 //!
 //! Ring implements `collect` to collect the elements in the ring as a vector
-//! if the type of the elements implements the `Copy` trait.
-//! It also implements `into_iter` to generate an iterator. However,
-//! `into_iter` empties the ring.
+//! if the type of the elements implement the `Copy` trait.
 //!
 //! ```rust
 //! # #[macro_use] extern crate ring_queue;
@@ -73,13 +71,36 @@
 //!
 //! let mut r = ring![1, 2, 3, 4];
 //! assert_eq!(r.collect(), vec![1, 2, 3, 4]);
+//! ```
+//!
+//! It also implements `into_iter` to generate an iterator. However,
+//! `into_iter` empties the ring unless the elements implement the `Copy` trait.
+//!
+//! ```rust
+//! # #[macro_use] extern crate ring_queue;
+//!
+//! use ring_queue::Ring;
+//!
+//! #[derive(Debug)]
+//! struct Foo { a: i32 }
+//!
+//! let mut r = ring![Foo{a: 1}, Foo{a: 2}];
 //! assert_eq!(r.is_empty(), false);
 //!
 //! for item in r.into_iter() {
-//!     println!("{}", item);
+//!     println!("{:?}", item);
 //! }
 //!
 //! assert_eq!(r.is_empty(), true);
+//!
+//! let r2 = ring![1, 2, 3, 4];
+//! assert_eq!(r2.is_empty(), false);
+//!
+//! for item in r2.into_iter() {
+//!     println!("{}", item);
+//! }
+//!
+//! assert_eq!(r2.is_empty(), false);
 //! ```
 
 #[derive(Copy, Clone)]
@@ -102,9 +123,11 @@ macro_rules! ring {
     () => ( $crate::Ring::new() );
     ($($x:expr),*) => (
         {
+            let s: Box<[_]>  = Box::new([$($x),*]);
+            let mut x = s.into_vec();
             let mut r = Ring::new();
-            for elem in [$($x),*].iter() {
-                r.push(*elem);
+            for i in x.drain(..) {
+                r.push(i);
             }
             r
         }
@@ -560,12 +583,12 @@ where
     }
 }
 
-impl<'a, T> std::iter::IntoIterator for &'a mut Ring<T> {
+impl<'a, T> std::iter::IntoIterator for &'a Ring<T> where T: Copy {
     type Item = T;
-    type IntoIter = Iter<T>;
+    type IntoIter = Iter<'a, T>;
 
-    /// Creates a consuming iterator, that is, one that moves each value out of
-    /// the ring (from head to tail). The ring will be empty.
+    /// Creates an iterator that will not consume the current ring. It will,
+    /// instead, copy the elements one by one to the iterator.
     ///
     /// # Examples
     ///
@@ -579,6 +602,41 @@ impl<'a, T> std::iter::IntoIterator for &'a mut Ring<T> {
     /// for i in r.into_iter() {
     ///     println!("{}", i);
     /// }
+    ///
+    /// // r is not empty now
+    /// ```
+    fn into_iter(self) -> Self::IntoIter {
+        Iter {
+            items: &self.items,
+            head: self.cur.clone(),
+            pos: self.cur.clone(),
+        }
+    }
+}
+
+impl<'a, T> std::iter::IntoIterator for &'a mut Ring<T> {
+    type Item = T;
+    type IntoIter = IterMut<T>;
+
+    /// Creates a consuming iterator, that is, one that moves each value out of
+    /// the ring (from head to tail). The ring will be empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ring_queue::Ring;
+    ///
+    /// struct Foo { a: i32 }
+    ///
+    /// let mut r = Ring::new();
+    /// r.push(Foo{a: 1});
+    /// r.push(Foo{a: 2});
+    ///
+    /// for i in r.into_iter() {
+    ///     println!("{}", i.a);
+    /// }
+    ///
+    /// // r is empty now
     /// ```
     fn into_iter(self) -> Self::IntoIter {
         let mut items = Vec::new();
@@ -588,7 +646,7 @@ impl<'a, T> std::iter::IntoIterator for &'a mut Ring<T> {
         std::mem::swap(&mut cur, &mut self.cur);
         self.items.clear();
 
-        Iter {
+        IterMut {
             items: items,
             head: cur,
             pos: cur,
@@ -609,13 +667,38 @@ where
     }
 }
 
-pub struct Iter<T> {
+pub struct Iter<'a, T: Copy> {
+    items: &'a Vec<Item<T>>,
+    head: Option<usize>,
+    pos: Option<usize>,
+}
+
+impl<'a, T: Copy> Iterator for Iter<'a, T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut val = None;
+        self.pos = self.pos.and_then(|pos| {
+            let item = self.items[pos];
+            val = item.val;
+
+            if item.next == self.head.unwrap() {
+                None
+            } else {
+                Some(item.next)
+            }
+        });
+        val
+    }
+}
+
+pub struct IterMut<T> {
     items: Vec<Item<T>>,
     head: Option<usize>,
     pos: Option<usize>,
 }
 
-impl<T> Iterator for Iter<T> {
+impl<T> Iterator for IterMut<T> {
     type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -699,13 +782,26 @@ mod tests {
     }
 
     #[test]
-    fn test_iter() {
-        let mut r = ring![1, 2, 3];
+    fn test_iter_copyable() {
+        let r = ring![1, 2, 3];
         let mut iter = r.into_iter();
         assert_eq!(iter.next(), Some(1));
         assert_eq!(iter.next(), Some(2));
         assert_eq!(iter.next(), Some(3));
         assert_eq!(iter.next(), None);
+
+        assert_eq!(r.len(), 3);
+    }
+
+    #[test]
+    fn test_iter_nocopyable() {
+        let mut r = ring![vec![1, 2], vec![3, 4]];
+        let mut iter = r.into_iter();
+        assert_eq!(iter.next(), Some(vec![1, 2]));
+        assert_eq!(iter.next(), Some(vec![3, 4]));
+        assert_eq!(iter.next(), None);
+
+        assert_eq!(r.is_empty(), true);
     }
 
     #[test]
@@ -821,5 +917,11 @@ mod tests {
 
         r.clear();
         assert_eq!(r.is_empty(), true);
+    }
+
+    #[test]
+    fn test_macro_nocopy() {
+        let r = ring![vec![1, 2, 3]];
+        assert_eq!(r.is_empty(), false);
     }
 }
