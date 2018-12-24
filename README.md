@@ -3,7 +3,7 @@
 A double-ended queue implemented using a `Vec` that reuses space after
 elements are removed.
 
-The API is heavily based on `collections.deque` from Python.
+The API is heavily inspired on `collections.deque` from Python.
 
 You can create a ring using any of the available constructors or the `ring!` macro.
 
@@ -65,8 +65,6 @@ assert_eq!(r.collect(), vec![2, 3, 4, 5, 1]);
 
 Ring implements `collect` to collect the elements in the ring as a vector
 if the type of the elements implements the `Copy` trait.
-It also implements `into_iter` to generate an iterator. However,
-`into_iter` empties the ring.
 
 ```rust
 #[macro_use] extern crate ring_queue;
@@ -75,13 +73,36 @@ use ring_queue::Ring;
 
 let mut r = ring![1, 2, 3, 4];
 assert_eq!(r.collect(), vec![1, 2, 3, 4]);
+```
+
+It also implements `into_iter` to generate an iterator. However,
+`into_iter` empties the ring if the elements do not implement the `Copy` trait.
+
+```rust
+#[macro_use] extern crate ring_queue;
+
+use ring_queue::Ring;
+
+// Since integers implement Copy, an iterator over this ring will not
+// consume the ring itself.
+let r = ring![1, 2, 3, 4];
 assert_eq!(r.is_empty(), false);
 
 for item in r.into_iter() {
     println!("{}", item);
 }
 
-assert_eq!(r.is_empty(), true);
+assert_eq!(r.is_empty(), false);
+
+// Element is Vec<{integer}>, so it's not copyable. An iterator for this
+// ring will empty the ring.
+let mut r2 = ring![vec![1, 2], vec![3, 4]];
+
+for item in r2.into_iter() {
+    println!("{:?}", item);
+}
+
+assert_eq!(r2.is_empty(), true);
 ```
 
 ## LICENSE
