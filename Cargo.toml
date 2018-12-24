@@ -4,7 +4,7 @@ description = """
 A double-ended queue implemented using a vector that reuses space after
 elements are removed.
 """
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Miguel Molina <miguel@erizocosmi.co>"]
 categories = ["data-structures"]
 documentation = "https://docs.rs/ring_queue"
