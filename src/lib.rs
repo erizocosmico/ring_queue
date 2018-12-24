@@ -366,27 +366,21 @@ where
     }
 
     #[inline]
-    fn peek_left(&self, cur: usize, n: isize) -> Option<T>
-    where
-        T: Copy,
-    {
+    fn peek_left(&self, cur: usize, n: isize) -> Option<&T> {
         let mut c = cur;
         for _ in n..0 {
             c = self.items[c].prev;
         }
-        self.items[c].val
+        self.items[c].val.as_ref()
     }
 
     #[inline]
-    fn peek_right(&self, cur: usize, n: isize) -> Option<T>
-    where
-        T: Copy,
-    {
+    fn peek_right(&self, cur: usize, n: isize) -> Option<&T> {
         let mut c = cur;
         for _ in 0..n {
             c = self.items[c].next;
         }
-        self.items[c].val
+        self.items[c].val.as_ref()
     }
 
     /// Retrieve the element `n` steps to the right from the head. If `n` is
@@ -402,15 +396,12 @@ where
     /// use ring_queue::Ring;
     ///
     /// let r = ring![1, 2, 3, 4, 5];
-    /// assert_eq!(r.peek(0), Some(1));
-    /// assert_eq!(r.peek(1), Some(2));
-    /// assert_eq!(r.peek(-1), Some(5));
+    /// assert_eq!(r.peek(0), Some(&1));
+    /// assert_eq!(r.peek(1), Some(&2));
+    /// assert_eq!(r.peek(-1), Some(&5));
     /// # }
     /// ```
-    pub fn peek(&self, n: isize) -> Option<T>
-    where
-        T: Copy,
-    {
+    pub fn peek(&self, n: isize) -> Option<&T> {
         match self.cur {
             Some(cur) => {
                 if n < 0 {
@@ -759,6 +750,17 @@ impl<T: fmt::Debug + Copy> fmt::Debug for Ring<T> {
     }
 }
 
+impl<T> std::ops::Index<isize> for Ring<T> {
+    type Output = T;
+
+    fn index(&self, idx: isize) -> &T {
+        match self.peek(idx) {
+            Some(r) => r,
+            None => panic!("tried to access index {} of empty ring", idx),
+        }
+    }
+}
+
 impl<T: PartialEq> PartialEq for Ring<T> {
     fn eq(&self, other: &Ring<T>) -> bool {
         if self.len() != other.len() {
@@ -852,12 +854,12 @@ mod tests {
     #[test]
     fn test_peek() {
         let r = ring![1, 2, 3, 4];
-        assert_eq!(r.peek(0), Some(1));
-        assert_eq!(r.peek(1), Some(2));
-        assert_eq!(r.peek(4), Some(1));
-        assert_eq!(r.peek(-1), Some(4));
-        assert_eq!(r.peek(-1), Some(4));
-        assert_eq!(r.peek(-6), Some(3));
+        assert_eq!(r.peek(0), Some(&1));
+        assert_eq!(r.peek(1), Some(&2));
+        assert_eq!(r.peek(4), Some(&1));
+        assert_eq!(r.peek(-1), Some(&4));
+        assert_eq!(r.peek(-1), Some(&4));
+        assert_eq!(r.peek(-6), Some(&3));
     }
 
     #[test]
@@ -969,5 +971,13 @@ mod tests {
         assert_eq!(r != ring![1, 2], true);
         assert_eq!(r != ring![1, 2, 3], false);
         assert_eq!(r != ring![], true);
+    }
+
+    #[test]
+    fn test_index() {
+        let r = ring![1, 2, 3];
+        assert_eq!(r[0], 1);
+        assert_eq!(r[1], 2);
+        assert_eq!(r[-1], 3);
     }
 }
